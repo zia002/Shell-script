@@ -168,12 +168,10 @@ unique=($(printf "%s\n" "${numbers[@]}" | sort | uniq))
 ---
 ```
 
-
 ```
 ***TXT File Handling***
 ---
 ```
-
 
 ```
 
