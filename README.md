@@ -164,9 +164,86 @@ numbers+=("One")
 unique=($(printf "%s\n" "${numbers[@]}" | sort | uniq))
 
 ```
+***Function***
+---
+```
+#--Without arguments--#
+say_hello() {
+  echo "Hello, World!"
+}
+#To call the function just write: say_hello
+
+#--With arguments--#
+greet() {
+  echo "Hello, $1!"
+  echo "second argument was: $2"
+}
+
+greet "Zia_1st arg" "extra info 2nd arg"
+
+```
 ***CSV File Handling***
 ---
 ```
+#-----To Create a CSV file-----#
+CSV_FILE="data.csv"
+create_file() {
+    echo "ID,Name,Age" > "$CSV_FILE"
+}
+
+#-----To Add a Data row-------#
+add_data() {
+    echo "$id,$name,$age" >> "$CSV_FILE"
+    echo "Data added."
+}
+
+#-----To Show all Data -------#
+-> -t → creates a table layout
+-> -s, → tells column that the separator is a comma 
+show_data() {
+    echo "All data:"
+    column -t -s, "$CSV_FILE"
+}
+
+#-----To Show specific ID Data -------#
+-> searches the CSV file for a line starting with that ID followed by a comma.
+-> ^ means start of line.
+-> grep "xyz$" file : finds lines that end with xyz.
+-> grep "123" file : finds lines containing 123 anywhere (start, middle, or end).
+
+read_data() {
+    read -p "Enter ID to search:" id
+    grep "^$id," "$CSV_FILE"
+}
+
+#----- To Delete Data of specific ID -------#
+delete_data() {
+    read -p "Enter ID to delete:" id
+    tmpfile=$(mktemp)                            : creates a temporary file 
+    grep -v "^$id," "$CSV_FILE" > "$tmpfile"     : copies all lines not starting with that ID into the temp file.
+    mv "$tmpfile" "$CSV_FILE"                    : replaces the original file with the new one.
+    echo "Data deleted."
+}
+
+#----- To Update Data of specific ID -------#
+update_data() {
+    read -p "Enter ID to update:" id
+    line=$(grep "^$id," "$CSV_FILE")            : searches for a line that starts with the ID followed by a comma and store in the line variable
+    if [ -z "$line" ]; then                     : checks if line is empty.
+        echo "Record not found."                 
+        return
+    fi
+    echo "Current data: $line"
+    read -p "Enter new Name:" name
+    read -p "Enter new Age:" age
+    tmpfile=$(mktemp)       
+    awk -F, -v id="$id" -v name="$name" -v age="$age" 'BEGIN{OFS=","}     : -F, tells awk the fields/columns are separated by commas.
+    $1==id {$2=name; $3=age} {print}' "$CSV_FILE" > "$tmpfile"            : BEGIN{OFS=","} sets the output field separator back to comma
+    mv "$tmpfile" "$CSV_FILE"                                            
+    echo "Data updated."
+}
+
+
 
 ```
 ***TXT File Handling***
