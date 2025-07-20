@@ -82,15 +82,32 @@ delete_expense(){
 
 show_expense_of_tag(){
     echo "Enter TAG to filter expenses:"
+    read tag
+    echo "Expenses with TAG: $tag"
+    echo "   DATE     AMOUNT    TAG"
+    awk -F, -v t="$tag" 'NR>1 && $4==t {print $2, $3, $4}' "$csvFile" | column -t
 }
 
 show_date_range_expense(){
     echo "Enter start date (YYYY-MM-DD):"
+    read start
+    echo "Enter end date (YYYY-MM-DD):"
+    read end
+    echo "Expenses from $start to $end"
+    echo "   DATE     AMOUNT    TAG"
+    awk -F, -v s="$start" -v e="$end" 'NR>1 && $2>=s && $2<=e {print $2, $3, $4}' "$csvFile" | column -t
 }
 
 show_expense_overview(){
+    total=$(awk -F, 'NR>1 {sum+=$3} END {print sum}' "$csvFile")
+    count=$(awk -F, 'NR>1 {c++} END {print c}' "$csvFile")
     echo "Expense Overview:"
+    echo "Total Expenses: $count"
+    echo "Total Amount Spent: $total"
+    echo "Amount by TAG:"
+    awk -F, 'NR>1 {a[$4]+=$3} END {for (t in a) print t ": " a[t]}' "$csvFile"
 }
+
 
 if [ -f "$csvFile" ]; then
 	echo " Welcome to Expense Tracker "
