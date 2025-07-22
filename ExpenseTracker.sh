@@ -115,6 +115,45 @@ delete_expense(){
     fi
 }
 
+show_top_expenses() {
+    # Check if file exists
+    if [ ! -f "$csvFile" ]; then
+        echo "Error: Expense file not found."
+        return 1
+    fi
+
+    # Input validation
+    echo "Enter number of top expenses to display: "
+    read count
+    if ! [[ "$count" =~ ^[0-9]+$ ]] || [ "$count" -lt 1 ]; then
+        echo "Invalid input. Please enter a positive number."
+        return 1
+    fi
+
+    # Get total record count for comparison
+    total_records=$(($(wc -l < "$csvFile") - 1))
+    if [ "$count" -gt "$total_records" ]; then
+        echo "Notice: Only $total_records expenses available."
+        count=$total_records
+    fi
+
+    # Display header
+    echo ""
+    echo "────────── Top $count Highest Expenses ──────────"
+    printf "%-12s %-10s %-20s\n" "DATE" "AMOUNT" "TAG"
+    echo "──────────────────────────────────────────"
+
+    # Process and display expenses
+    tail -n +2 "$csvFile" | sort -t',' -k3nr | head -n "$count" | awk -F, '{
+        printf "%-12s %-9.2f %-20s\n", $2, $3, $4
+    }'
+
+    # Footer with total
+    total=$(tail -n +2 "$csvFile" | sort -t',' -k3nr | head -n "$count" | awk -F, '{sum += $3} END {printf "%.2f", sum}')
+    echo "──────────────────────────────────────────"
+    printf "%-12s %-9.2f\n" "TOTAL:" "$total"
+}
+
 show_expense_of_tag(){
     echo "Enter TAG to filter expenses:"
     read tag
@@ -144,6 +183,7 @@ show_expense_overview(){
 }
 
 
+
 if [ -f "$csvFile" ]; then
 	echo " Welcome to Expense Tracker "
 else
@@ -152,22 +192,22 @@ fi
 
 while true; do
 	echo "-------Menu--------"
-	echo "1.Add Expense"
-	echo "2.Show All Expense"
-	echo "3.Update Expense"
-	echo "4.Delete Expense"
-	echo "5.-- "
-	echo "6.Show Expense of Tag"
-	echo "7.Show Expense of a Date Range"
-	echo "8.Show Expense Overview"
-	echo "9.Exit"
-	read -p "Enter Menu:" menu
+	echo "1. Add Expense"
+	echo "2. Show All Expense"
+	echo "3. Update Expense"
+	echo "4. Delete Expense"
+	echo "5. Show Top N Expenses"
+	echo "6. Show Expense of Tag"
+	echo "7. Show Expense of a Date Range"
+	echo "8. Show Expense Overview"
+	echo "9. Exit"
+	read -p "Enter Menu: " menu
 	case $menu in
 		1) add_expense ;;
 		2) show_all_expense ;;
 		3) update_expense ;;
 		4) delete_expense ;;
-		5) exit ;; #change it with your feature
+		5) show_top_expenses ;; 
 		6) show_expense_of_tag ;;
 		7) show_date_range_expense ;;
 		8) show_expense_overview ;;
