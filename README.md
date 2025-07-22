@@ -1,54 +1,63 @@
 # Linux Shell Script
 
-***Basic .sh File Opearion***
----
+## **_Basic .sh File Opearion_**
+
 **Create New File**
+
 ```
 touch fileName.sh
 ```
+
 **Make it Executeable**
+
 ```
 chmod +x fileName.sh
 ```
+
 **To Edit and Write Code Inside the File**
+
 ```
 nano fileName.sh
 
-#!/bin/bash  
+#!/bin/bash
 #Code here
 
 ```
+
 **To Run The Script**
+
 ```
 ./fileName.sh
 ```
-***Variables & Data Types***
----
+
+## **_Variables & Data Types_**
+
 Everything is string by default in bash, but you can do arithmetic:</br>
+
 ```
 #!/bin/bash
-name="Zia"
+name="Joyonta"
 a=10
 b=20
 ans=$((a+b))
 echo "Sum of $a and $b is $ans"
 ```
 
-***Read Write***
----
+## **_Read Write_**
+
 ```
 #!/bin/bash
 read -p "Enter Number:" num
 echo "The Number is $num"
 ```
 
-***Conditions (if, else, elif)***
----
+## **_Conditions (if, else, elif)_**
+
 ```
 #!/bin/bash
 a=10
 b=20
-name="Zia"
+name="joyonta23"
 
 # Condition inside [ ....... ]
 if [ "$a" -gt "$b" ]
@@ -62,14 +71,14 @@ else
 fi
 
 
-# For complex condition 
+# For complex condition
 if [[ "$name" == Z* && "$a" -lt 100 ]]; then
   echo "Name starts with Z and a is less than 100"
 fi
 ```
 
-***Case or Switch***
----
+## **_Case or Switch_**
+
 ```
 #!/bin/bash
 read -p "Enter Number:" num
@@ -85,8 +94,9 @@ case $num in
        ;;
 esac
 ```
-***Loop***
----
+
+## **_Loop_**
+
 ```
 #!/bin/bash
 
@@ -122,12 +132,12 @@ while true; do
   if [ $count -eq 3 ] ;then
     break
   fi
-done  
+done
 
 ```
 
-***Array***
----
+## **_Array_**
+
 ```
 #!/bin/bash
 
@@ -140,7 +150,7 @@ for i in ${numbers[@]};do
    echo -e "Values $i\n"
 done
 
-# Add single value 
+# Add single value
 numbers+=( "Four" )
 
 # Add multiple value
@@ -164,8 +174,9 @@ numbers+=("One")
 unique=($(printf "%s\n" "${numbers[@]}" | sort | uniq))
 
 ```
-***Function***
----
+
+## **_Function_**
+
 ```
 #--Without arguments--#
 say_hello() {
@@ -179,11 +190,12 @@ greet() {
   echo "second argument was: $2"
 }
 
-greet "Zia_1st arg" "extra info 2nd arg"
+greet "joyonta23_1st arg" "extra info 2nd arg"
 
 ```
-***CSV File Handling***
----
+
+## **_CSV File Handling_**
+
 ```
 #-----To Create a CSV file-----#
 CSV_FILE="data.csv"
@@ -199,7 +211,7 @@ add_data() {
 
 #-----To Show all Data -------#
 -> -t → creates a table layout
--> -s, → tells column that the separator is a comma 
+-> -s, → tells column that the separator is a comma
 show_data() {
     echo "All data:"
     column -t -s, "$CSV_FILE"
@@ -219,7 +231,7 @@ read_data() {
 #----- To Delete Data of specific ID -------#
 delete_data() {
     read -p "Enter ID to delete:" id
-    tmpfile=$(mktemp)                            : creates a temporary file 
+    tmpfile=$(mktemp)                            : creates a temporary file
     grep -v "^$id," "$CSV_FILE" > "$tmpfile"     : copies all lines not starting with that ID into the temp file.
     mv "$tmpfile" "$CSV_FILE"                    : replaces the original file with the new one.
     echo "Data deleted."
@@ -230,48 +242,25 @@ update_data() {
     read -p "Enter ID to update:" id
     line=$(grep "^$id," "$CSV_FILE")            : searches for a line that starts with the ID followed by a comma and store in the line variable
     if [ -z "$line" ]; then                     : checks if line is empty.
-        echo "Record not found."                 
+        echo "Record not found."
         return
     fi
     echo "Current data: $line"
     read -p "Enter new Name:" name
     read -p "Enter new Age:" age
-    tmpfile=$(mktemp)       
+    tmpfile=$(mktemp)
     awk -F, -v id="$id" -v name="$name" -v age="$age" 'BEGIN{OFS=","}     : -F, tells awk the fields/columns are separated by commas.
     $1==id {$2=name; $3=age} {print}' "$CSV_FILE" > "$tmpfile"            : BEGIN{OFS=","} sets the output field separator back to comma
-    mv "$tmpfile" "$CSV_FILE"                                            
+    mv "$tmpfile" "$CSV_FILE"
     echo "Data updated."
 }
 
 
 
 ```
-***TXT File Handling***
----
-```
+
+## **_TXT File Handling_**
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```

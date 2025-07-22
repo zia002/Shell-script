@@ -1,5 +1,5 @@
 #!/bin/bash
-≈
+
 csvFile="Expense.csv"
 
 createOnceFile(){
@@ -77,7 +77,42 @@ update_expense(){
 
 
 delete_expense(){
+    if [ ! -f "$csvFile" ]; then
+        echo "File does not exist."
+        return
+    fi
+
+    echo "All expenses with ID:"
+    column -t -s, "$csvFile"
+
     echo "Enter ID to delete:"
+    read id
+
+    # Check if the record exists
+    line=$(grep "^$id," "$csvFile")
+    if [ -z "$line" ]; then
+        echo "Record with ID $id not found."
+        return
+    fi
+
+    # Show the record to be deleted
+    echo "Record to be deleted:"
+    echo "ID,DATE,AMOUNT,TAG"
+    echo "$line" | column -t -s,
+
+    # Confirm deletion
+    echo "Are you sure you want to delete this record? (y/n):"
+    read confirm
+    
+    if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+        # Create temporary file without the record to delete
+        tmpfile=$(mktemp)
+        grep -v "^$id," "$csvFile" > "$tmpfile"
+        mv "$tmpfile" "$csvFile"
+        echo "Expense with ID $id deleted successfully."
+    else
+        echo "Deletion cancelled."
+    fi
 }
 
 show_expense_of_tag(){
