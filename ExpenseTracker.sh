@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 csvFile="Expense.csv"
 
 createOnceFile(){
@@ -43,14 +44,12 @@ update_expense(){
     echo "Enter ID to update:"
     read id
 
-    # Find the line
-    line=$(grep "^$id," "$csvFile")
+    line=$(grep -E "^$id," "$csvFile")
     if [ -z "$line" ]; then
         echo "Record not found."
         return
     fi
 
-    # Split old values
     old_date=$(echo "$line" | cut -d',' -f2)
     old_amount=$(echo "$line" | cut -d',' -f3)
     old_tag=$(echo "$line" | cut -d',' -f4)
@@ -62,16 +61,15 @@ update_expense(){
     echo "Enter new TAG (old: $old_tag) or * to keep:"
     read new_tag
 
-    # Use old value if user typed *
     [ "$new_date" = "*" ] && new_date="$old_date"
     [ "$new_amount" = "*" ] && new_amount="$old_amount"
     [ "$new_tag" = "*" ] && new_tag="$old_tag"
 
     tmpfile=$(mktemp)
     awk -F, -v id="$id" -v date="$new_date" -v amount="$new_amount" -v tag="$new_tag" 'BEGIN{OFS=","}
-    $1==id {$2=date; $3=amount; $4=tag} {print}' "$csvFile" > "$tmpfile"
-    mv "$tmpfile" "$csvFile"
+    $1==id {$2=date; $3=amount; $4=tag} {print $1, $2, $3, $4}' "$csvFile" | tr -d '\r' > "$tmpfile"
 
+    mv "$tmpfile" "$csvFile"
     echo "Expense updated."
 }
 
@@ -104,6 +102,7 @@ delete_expense(){
     echo "Are you sure you want to delete this record? (y/n):"
     read confirm
     
+
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         # Create temporary file without the record to delete
         tmpfile=$(mktemp)
@@ -215,4 +214,3 @@ while true; do
 		*) echo "Invalid Input" ;;
 	esac
 done
-
