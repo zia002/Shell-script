@@ -32,7 +32,46 @@ show_all_expense(){
 }
 
 
+update_expense(){
+    if [ ! -f "$csvFile" ]; then
+        echo "File does not exist."
+        return
+    fi
 
+    echo "All expenses with ID:"
+    column -t -s, "$csvFile"
+
+    echo "Enter ID to update:"
+    read id
+
+    line=$(grep -E "^$id," "$csvFile")
+    if [ -z "$line" ]; then
+        echo "Record not found."
+        return
+    fi
+
+    old_date=$(echo "$line" | cut -d',' -f2)
+    old_amount=$(echo "$line" | cut -d',' -f3)
+    old_tag=$(echo "$line" | cut -d',' -f4)
+
+    echo "Enter new DATE (old: $old_date) or * to keep:"
+    read new_date
+    echo "Enter new AMOUNT (old: $old_amount) or * to keep:"
+    read new_amount
+    echo "Enter new TAG (old: $old_tag) or * to keep:"
+    read new_tag
+
+    [ "$new_date" = "*" ] && new_date="$old_date"
+    [ "$new_amount" = "*" ] && new_amount="$old_amount"
+    [ "$new_tag" = "*" ] && new_tag="$old_tag"
+
+    tmpfile=$(mktemp)
+    awk -F, -v id="$id" -v date="$new_date" -v amount="$new_amount" -v tag="$new_tag" 'BEGIN{OFS=","}
+    $1==id {$2=date; $3=amount; $4=tag} {print $1, $2, $3, $4}' "$csvFile" | tr -d '\r' > "$tmpfile"
+
+    mv "$tmpfile" "$csvFile"
+    echo "Expense updated."
+}
 
 
 delete_expense(){
@@ -114,7 +153,13 @@ show_top_expenses() {
     printf "%-12s %-9.2f\n" "TOTAL:" "$total"
 }
 
-
+show_expense_of_tag(){
+    echo "Enter TAG to filter expenses:"
+    read tag
+    echo "Expenses with TAG: $tag"
+    echo "   DATE     AMOUNT    TAG"
+    awk -F, -v t="$tag" 'NR>1 && $4==t {print $2, $3, $4}' "$csvFile" | column -t
+}
 
 show_date_range_expense(){
     echo "Enter start date (YYYY-MM-DD):"
